@@ -1,12 +1,31 @@
-<h1>Working!</h1>
-<div>Hello World!</div>
 
-
-<canvas id="myChart" width="400" height="300"></canvas>
+<canvas id="myChart" width="600" height="400"></canvas>
+<canvas id="myChart2" width="600" height="400"></canvas>
 <script>
 ctx = document.getElementById('myChart').getContext('2d');
-let vm = new covidVisViewModel(ctx);
-vm.display(84048499);
+ctx2 = document.getElementById('myChart2').getContext('2d');
+
+let vm;
+async function startup(){
+ vm = new covidVisViewModel(ctx,ctx2);
+
+
+
+
+	await vm.display(42);
+	
+	await vm.addLocation(84042101);	
+	await vm.addLocation(84042017);
+	await vm.addLocation(84042091);
+	await vm.addLocation(84042003);
+	await vm.addLocation(84042045);
+
+	vm.mainDisplay.update();
+	vm.mainDisplay2.update();
+	
+}
+
+startup()
 
 
 </script>
