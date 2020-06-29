@@ -75,12 +75,6 @@ async function setupController(req : express.Request,res :express.Response)
 	res.status(200).send();
 };
 
-async function getTrajectory(req : express.Request, res:express.Response)
-{
-	let data = await covidDB.get_trajectory(84036061);
-	console.log(data);
-}
-app.all("/trajectory", (req,res) => {getTrajectory(req,res)});
 
 app.all("/controller",(req,res)=>{  setupController(req,res)});
 
@@ -94,5 +88,35 @@ async function locationQuery(req : express.Request, res:express.Response)
 }
 
 app.all("/locationQuery/:UID",(req,res) => {locationQuery(req,res);});
+
+async function popluousQuery(UID: number, count : number, req : express.Request, res:express.Response)
+{
+	
+	let results = await covidDB.get_populous_counties(UID,count);
+	
+	res.json(results);
+	
+} 
+app.all("/populousInState/:UID/:count",(req,res) => {
+	const UID : number = parseInt(req.params.UID);
+	const count : number = parseInt(req.params.count);
+
+	popluousQuery(UID,count,req,res);
+});
+
+async function getStateCodes(req : express.Request,res :express.Response){
+	let states = await covidDB.get_states();
+	res.json(states);
+}
+app.all("/stateCodes/",(req,res)=>{getStateCodes(req,res)
+	
+});
+
+app.all("/populousInState/:UID",(req,res) => {
+	const UID : number = parseInt(req.params.UID);
+
+	popluousQuery(UID,5,req,res);
+});
+
 
 const server = app.listen(8080,()=> { console.log("Listening on 8080");});

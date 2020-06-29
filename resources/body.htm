@@ -2,25 +2,26 @@
 <table width=100%>
 	<tbody>
 	<tr>
-		<td rowspan=3 width=10%>Hello World Abcdefghijklmnop</td>
-		<td width=40%><canvas id="cases" width="600" height="400"></canvas></td>
-		<td width=40%><canvas id="byPopulation" width="600" height="400"></canvas>
-		</td>	</tr>
-	<tr>
-		<td width=40%>
-		<canvas id="deathsByPopulation" width="600" height="400"></canvas>
-</td>
-		<td width=40%>
-		<canvas id="deaths" width="600" height="400"></canvas>
-</td>
+		<td rowspan=3 style="vertical-align:top;width:5%;'"><div style="width:10em" data-bind="template: { name: 'selectedState'}"></div></td>
+		<td style="width:30%"><canvas id="cases" width="600" height="400"></canvas></td>
+		<td style="width:30%"><canvas id="byPopulation" width="600" height="400"></canvas></td>
+		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
+			
 	</tr>
 	<tr>
-		<td width=40%>
-			<canvas id="trajectory" width="600" height="400"></canvas>
+		<td width=30%>
+		<canvas id="deathsByPopulation" width="600" height="400"></canvas>
 		</td>
-		<td width=40%>
+		<td width=30%>
+			<canvas id="deaths" width="600" height="400"></canvas>
+		</td>
+		<td width=30%>
 				<canvas id="trajectoryTime" width="600" height="400"></canvas>
 		</td>
+	</tr>
+	<tr>
+
+
 	</tr>
 	</tbody>
 </table>
@@ -34,7 +35,7 @@ ctx5 = document.getElementById('trajectory').getContext('2d');
 ctx6 = document.getElementById('trajectoryTime').getContext('2d');
 
 
-let vm;
+let vm = new covidVisViewModel(ctx,ctx2,ctx3,ctx4,ctx5,ctx6);
 async function myPA(){
 	
 	await vm.addLocation(42);		
@@ -56,13 +57,33 @@ async function myStates()
 	await vm.addLocation(49);
 	await vm.addLocation(53);
 }
-async function startup(){
- vm = new covidVisViewModel(ctx,ctx2,ctx3,ctx4,ctx5,ctx6);
 
-	await myStates();
+let dc = new dataChoices(vm);
+
+async function getStateWithCounties(state)
+{
+	const res=await fetch("/populousInState/"+state+"/5");
+	const data = await res.json(); 
+	await vm.addLocation(state);
+	for(let idx=0;idx<data.length;idx++)
+	{
+		let county=data[idx];
+		console.log(county);
+		await vm.addLocation(county.UID);
+	}
+	console.log(data);
+	
+}
+async function startup(){
+
+	 await dc.populate();
+
+//	await getStateWithCounties(4);
 
 	vm.updateAll();
 	
+	ko.applyBindings(dc);
+	dc.selectedState(dc.states[38]);
 }
 
 startup()
