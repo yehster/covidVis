@@ -4,22 +4,8 @@ async function queryLocationInfo(UID:number)
 	return await data.json();
 }
 
-class trajectoryPoint
-{
-	public day : Date;
-	public confirmed: number;
-	public deaths : number;
-	public confirmed_ma : number;
-	public deaths_ma : number;
-	constructor(day : Date,confirmed : number, deaths : number, confirmed_ma : number, deaths_ma : number)
-	{
-		this.day = day;
-		this.confirmed=confirmed;
-		this.deaths=deaths;
-		this.confirmed_ma=confirmed_ma;
-		this.deaths_ma=deaths_ma;
-	}
-}
+
+
 class locationInfo
 {
 	private UID :number;
@@ -35,7 +21,62 @@ class locationInfo
 	async populate()
 	{
 		// getData
-		this.dbData = await queryLocationInfo(this.UID);	
+		let dbData = await queryLocationInfo(this.UID);
+		this.dbData=dbData;
+		this.displayName=this.dbData.location[0].display;
+		this.population=this.dbData.location[0].population;
+		for(let resIdx=0;resIdx<this.dbData.results.length;resIdx++)
+		{
+			this[dbData.tables[resIdx]]=dbData.results[resIdx];
+		}
+	}
+	public name() : string
+	{
+		return this.displayName;
+	}
+	public trajectory()
+	{
+		let retVal=[];
+		let offset = this.confirmed.length-this.confirmed_delta_ma.length;
+		for(let idx=0;idx<this.confirmed_delta_ma.length;idx++)
+		{
+			retVal.push({x:this.confirmed[idx+offset].number,y:this.confirmed_delta_ma[idx].number,label:new Date(this.confirmed_delta_ma[idx].day)});
+		}
+		return retVal;
+	}
+	public getTimeSeries(name : string,population : boolean = false)
+	{
+		let retVal=[];
+		let data = this[name];
+		console.log(this);
+		console.log(name);
+		for(let idx=0;idx<data.length;idx++)
+		{
+			retVal.push({t:new Date(data[idx].day),y: population ? (data[idx].number/this.population *100000) : data[idx].number});
+		}
+		return retVal;
+	}
+	public chartSetTrajectory(color : string = "rgba(200,0,0)")
+	{
+		return {
+            label: this.name(),
+            data: this.trajectory(),
+            borderWidth: 1,
+			fill: false,
+			borderColor : color,
+			lineTension : 0
+        };
+	}
+	public chartSetByName(name : string , color : string = "rgba(200,0,0)",population : boolean = false)
+	{
+		return {
+            label: this.name(),
+            data: this.getTimeSeries(name,population),
+            borderWidth: 1,
+			fill: false,
+			borderColor : color,
+			lineTension : 0
+		};		
 	}
 }
 
@@ -43,7 +84,6 @@ async function getLocationInfo(UID:number)
 {
 	let retVal=new locationInfo(UID);
 	await retVal.populate();
-	console.log(retVal);
 	return retVal;
 }
 interface dataPairs
@@ -55,7 +95,7 @@ interface dataSet
 {
 	results : Array<Array<dataPairs>>;
 }
-let 	chartColors = {
+/*let 	chartColors = {
 		red: 'rgb(255, 99, 132)',
 		orange: 'rgb(255, 159, 64)',
 		yellow: 'rgb(255, 205, 86)',
@@ -64,26 +104,5 @@ let 	chartColors = {
 		purple: 'rgb(153, 102, 255)',
 		grey: 'rgb(201, 203, 207)'
 	};
-
+*/
 let ctx : any;
-async function draw()
-{
-	let info=await getLocationInfo(36); //84034021
-	let results : dataSet = info.dbData as dataSet;
-	let trajectory=[];
-	console.log(results);
-	let data=results.results[2];
-	let total=results.results[0];
-	let offset = total.length-data.length;
-	for(let idx=0;idx<data.length;idx++)
-	{
-//		trajectory.push({t:new Date(data[idx].day),y:data[idx].number});
-		trajectory.push({x:total[idx+offset].number,y:data[idx].number});
-		console.log(trajectory[trajectory.length-1]);
-	}
-	console.log(trajectory)
-	
-
-
-	return trajectory;
-}
