@@ -1,27 +1,67 @@
 
-<canvas id="myChart" width="600" height="400"></canvas>
-<canvas id="myChart2" width="600" height="400"></canvas>
+<table width=100%>
+	<tbody>
+	<tr>
+		<td rowspan=3 width=10%>Hello World Abcdefghijklmnop</td>
+		<td width=40%><canvas id="cases" width="600" height="400"></canvas></td>
+		<td width=40%><canvas id="byPopulation" width="600" height="400"></canvas>
+		</td>	</tr>
+	<tr>
+		<td width=40%>
+		<canvas id="deathsByPopulation" width="600" height="400"></canvas>
+</td>
+		<td width=40%>
+		<canvas id="deaths" width="600" height="400"></canvas>
+</td>
+	</tr>
+	<tr>
+		<td width=40%>
+			<canvas id="trajectory" width="600" height="400"></canvas>
+		</td>
+		<td width=40%>
+				<canvas id="trajectoryTime" width="600" height="400"></canvas>
+		</td>
+	</tr>
+	</tbody>
+</table>
+
 <script>
-ctx = document.getElementById('myChart').getContext('2d');
-ctx2 = document.getElementById('myChart2').getContext('2d');
+ctx = document.getElementById('byPopulation').getContext('2d');
+ctx2 = document.getElementById('cases').getContext('2d');
+ctx3 = document.getElementById('deathsByPopulation').getContext('2d');
+ctx4 = document.getElementById('deaths').getContext('2d');
+ctx5 = document.getElementById('trajectory').getContext('2d');
+ctx6 = document.getElementById('trajectoryTime').getContext('2d');
+
 
 let vm;
-async function startup(){
- vm = new covidVisViewModel(ctx,ctx2);
-
-
-
-
-	await vm.display(42);
+async function myPA(){
 	
+	await vm.addLocation(42);		
 	await vm.addLocation(84042101);	
 	await vm.addLocation(84042017);
 	await vm.addLocation(84042091);
 	await vm.addLocation(84042003);
 	await vm.addLocation(84042045);
+}
 
-	vm.mainDisplay.update();
-	vm.mainDisplay2.update();
+async function myStates()
+{
+	
+
+
+	
+	await vm.addLocation(16);		
+	await vm.addLocation(41);	
+	await vm.addLocation(49);
+	await vm.addLocation(53);
+}
+async function startup(){
+ vm = new covidVisViewModel(ctx,ctx2,ctx3,ctx4,ctx5,ctx6);
+
+	await myStates();
+
+	vm.updateAll();
 	
 }
 
