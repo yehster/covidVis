@@ -107,34 +107,52 @@ class covidVisViewModel
 	public trajectory: Chart;
 	public trajectoryTime : Chart;
 	
+	public allCharts : Array<Chart>;
 	constructor (newCasesByPopulation: CanvasRenderingContext2D, newCases : CanvasRenderingContext2D, deaths : CanvasRenderingContext2D,deathsByPop : CanvasRenderingContext2D,trajectory: CanvasRenderingContext2D,trajectoryTime: CanvasRenderingContext2D)
 	{
+		this.allCharts = new Array<Chart>();
 		this.newCasesByPopulation = new Chart(newCasesByPopulation,new chartOptions("line","New Cases/100,000 Population"));
+		this.allCharts.push(this.newCasesByPopulation);
+		
 		this.newCases = new Chart(newCases,new chartOptions("line","New Cases"));
+		this.allCharts.push(this.newCases);
 
-		console.log(this.newCases);
 		this.newDeaths = new Chart(deaths,new chartOptions("line","Deaths"));
+		this.allCharts.push(this.newDeaths);
+		
 		this.deathsByPop = new Chart(deathsByPop,new chartOptions("line","Deaths/100,000 Population"));
+		this.allCharts.push(this.deathsByPop);
+
+
 		this.trajectory = new Chart(trajectory, trajectoryOptions);
+		this.allCharts.push(this.trajectory);
 		
 		this.trajectoryTime= new Chart(trajectoryTime, new chartOptions("line","New Cases"));
 		this.trajectoryTime.options.scales.yAxes[0].type="logarithmic";
+		this.allCharts.push(this.trajectoryTime);
 		
 	}
 	
-	public async addLocation(UID : number)
+	public async addLocation(UID : number,hidden : boolean = false)
 	{
 		let color = chartColors[this.newCasesByPopulation.data.datasets.length % chartColors.length];
 		let info  = await getLocationInfo(UID);
-		this.newCases.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,false));
-		this.newCasesByPopulation.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,true));
+		this.newCases.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,false,hidden));
+		this.newCasesByPopulation.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,true,hidden));
 
-		this.newDeaths.data.datasets.push(info.chartSetByName("deaths_delta_ma",color,false));
-		this.deathsByPop.data.datasets.push(info.chartSetByName("deaths_delta_ma",color,true));
+		this.newDeaths.data.datasets.push(info.chartSetByName("deaths_delta_ma",color,false,hidden));
+		this.deathsByPop.data.datasets.push(info.chartSetByName("deaths_delta_ma",color,true,hidden));
 
 		this.trajectory.data.datasets.push(info.chartSetTrajectory(color));
-		this.trajectoryTime.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,false));
+		this.trajectoryTime.data.datasets.push(info.chartSetByName("confirmed_delta_ma",color,false,hidden));
 
+	}
+	public clearData()
+	{
+		for(let idx=0;idx<this.allCharts.length;idx++)
+		{
+			this.allCharts[idx].data.datasets=[];
+		}
 	}
 	
 	public updateAll(){

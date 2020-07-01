@@ -63,13 +63,21 @@ async function sendTemplates(req : express.Request, res : express.Response)
 	}
 }
 
+async function sendCSS(req : express.Request,res : express.Response)
+{
+	await streamDirectory(resource_path + "css/",res);
+}
 
 async function setupController(req : express.Request,res :express.Response)
 {
-	res.set({'Content-Type': 'text/html'});	
+	res.set({'Content-Type': 'text/html'});
+	res.write('<style>');
+		await sendCSS(req,res);
+	res.write('</style>');	
 	res.write("<script type=\"text/javascript\">");
-	await sendScripts(req,res);
+		await sendScripts(req,res);
 	res.write("</script>");
+	
 	await sendTemplates(req,res);
 	await streamToResponse(resource_path + "resources/body.htm",res);
 	res.status(200).send();
@@ -117,6 +125,15 @@ app.all("/populousInState/:UID",(req,res) => {
 
 	popluousQuery(UID,5,req,res);
 });
+
+
+async function get_state_heat(req : express.Request, res:express.Response)
+{
+	let data = await covidDB.get_state_event_pct_changes("confirmed_states_delta_ma_14_pct_change_14",14)
+	console.log(data);
+	res.json(data);
+}
+app.all("/stateheat/",(req,res) => {get_state_heat(req,res)});
 
 
 const server = app.listen(8080,()=> { console.log("Listening on 8080");});

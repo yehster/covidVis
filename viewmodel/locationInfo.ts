@@ -24,6 +24,11 @@ class locationInfo
 		let dbData = await queryLocationInfo(this.UID);
 		this.dbData=dbData;
 		this.displayName=this.dbData.location[0].display;
+		let trimPos = this.displayName.indexOf(",");
+		if(trimPos>0)
+		{
+			this.displayName=this.displayName.substring(0,trimPos);
+		}			
 		this.population=this.dbData.location[0].population;
 		for(let resIdx=0;resIdx<this.dbData.results.length;resIdx++)
 		{
@@ -33,6 +38,18 @@ class locationInfo
 	public name() : string
 	{
 		return this.displayName;
+	}
+	
+	public totalCases() : number
+	{
+		let confirmed=this["confirmed"];
+		return confirmed[confirmed.length-1];
+	}
+	
+	public totalDeaths() : number
+	{
+		let deaths=this["deaths"];
+		return deaths[deaths.length-1];
 	}
 	public trajectory()
 	{
@@ -67,13 +84,15 @@ class locationInfo
 			lineTension : 0
         };
 	}
-	public chartSetByName(name : string , color : string = "rgba(200,0,0)",population : boolean = false)
+	public chartSetByName(name : string , color : string = "rgba(200,0,0)",population : boolean = false,hidden : boolean = false)
 	{
+		console.log(hidden);
 		return {
             label: this.name(),
             data: this.getTimeSeries(name,population),
             borderWidth: 1,
 			fill: false,
+			hidden: hidden,
 			borderColor : color,
 			lineTension : 0
 		};		

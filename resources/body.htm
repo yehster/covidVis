@@ -2,31 +2,30 @@
 <table width=100%>
 	<tbody>
 	<tr>
-		<td rowspan=3 style="vertical-align:top;width:5%;'"><div style="width:10em" data-bind="template: { name: 'selectedState'}"></div></td>
+		<td rowspan=2 style="vertical-align:top;width:5%;'">
+		<div data-bind="template: {name:'USMapKO'}"></div>
+		<div style="width:10em" data-bind="template: { name: 'selectedState'}"></div></td>
 		<td style="width:30%"><canvas id="cases" width="600" height="400"></canvas></td>
 		<td style="width:30%"><canvas id="byPopulation" width="600" height="400"></canvas></td>
-		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
+		<td width=30%><canvas id="deaths" width="600" height="400"></canvas></td>
+
 			
 	</tr>
 	<tr>
-		<td width=30%>
-		<canvas id="deathsByPopulation" width="600" height="400"></canvas>
-		</td>
-		<td width=30%>
-			<canvas id="deaths" width="600" height="400"></canvas>
-		</td>
+		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
 		<td width=30%>
 				<canvas id="trajectoryTime" width="600" height="400"></canvas>
 		</td>
-	</tr>
-	<tr>
-
+		<td width=30%>
+			<canvas id="deathsByPopulation" width="600" height="400"></canvas>
+		</td>
 
 	</tr>
 	</tbody>
 </table>
 
 <script>
+
 ctx = document.getElementById('byPopulation').getContext('2d');
 ctx2 = document.getElementById('cases').getContext('2d');
 ctx3 = document.getElementById('deathsByPopulation').getContext('2d');
@@ -40,10 +39,11 @@ async function myPA(){
 	
 	await vm.addLocation(42);		
 	await vm.addLocation(84042101);	
+	await vm.addLocation(84042003);
+	await vm.addLocation(84042069);
 	await vm.addLocation(84042017);
 	await vm.addLocation(84042091);
-	await vm.addLocation(84042003);
-	await vm.addLocation(84042045);
+	await vm.addLocation(84042085);
 }
 
 async function myStates()
@@ -74,6 +74,43 @@ async function getStateWithCounties(state)
 	console.log(data);
 	
 }
+
+function heatToClass(heat)
+{
+	console.log(heat);
+	if(heat <-0.5)
+	{
+		return "mapStatusNegative2"
+	}
+	if(heat <-0.05)
+	{
+		return "mapStatusNegative1"
+	}
+	if(heat <0.05)
+	{
+		return "mapStatusNeutral"
+	}
+	if(heat <=0.50)
+	{
+		return "mapStatusPositive1"
+	}
+	return "mapStatusPositive2";
+}
+async function highlightMap()
+{
+	const res = await fetch("/stateheat/");
+	const data = await res.json();
+	const current = data[0]
+	for(let idx=0;idx<current.length;idx++)
+	{
+		let curItem=current[idx];
+		console.log(curItem)
+		let mapObservable=	dc.stateClass[curItem.location];
+		console.log(curItem.day)
+		console.log(heatToClass(curItem.number)+":"+curItem.number);
+		mapObservable(heatToClass(curItem.number));
+	}
+}
 async function startup(){
 
 	 await dc.populate();
@@ -83,7 +120,11 @@ async function startup(){
 	vm.updateAll();
 	
 	ko.applyBindings(dc);
-	dc.selectedState(dc.states[38]);
+	//dc.selectedState(dc.states[38]);
+	await myPA();
+	vm.updateAll();
+	setupMap(dc);
+	await highlightMap();
 }
 
 startup()
