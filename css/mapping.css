@@ -1,0 +1,33 @@
+body
+{
+	background-color: white;
+}
+
+.state
+{
+	fill : lightgray;
+}
+.mapStatusNeutral
+{
+	fill : yellow;
+}
+
+.mapStatusPositive1
+{
+	fill: orange;
+}
+
+.mapStatusPositive2
+{
+	fill: red;
+}
+
+.mapStatusNegative1
+{
+	fill: lightgreen;
+}
+
+.mapStatusNegative2
+{
+	fill:green;
+}
