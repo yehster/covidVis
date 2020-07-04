@@ -2,7 +2,7 @@
 <table width=100%>
 	<tbody>
 	<tr>
-		<td rowspan=2 style="vertical-align:top;width:5%;'">
+		<td rowspan=1 style="vertical-align:top;width:5%;'">
 		<div data-bind="template: {name:'USMapKO'}"></div>
 		<div style="width:10em" data-bind="template: { name: 'selectedState'}"></div></td>
 		<td style="width:30%"><canvas id="cases" width="600" height="400"></canvas></td>
@@ -12,6 +12,7 @@
 			
 	</tr>
 	<tr>
+		<td rowspan=1 style="vertical-align:top;width:5%;'"><div data-bind="template: {name:'NW'}"></div></td>
 		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
 		<td width=30%>
 				<canvas id="trajectoryTime" width="600" height="400"></canvas>
@@ -71,6 +72,7 @@ async function getStateWithCounties(state)
 		console.log(county);
 		await vm.addLocation(county.UID);
 	}
+	await vm.addLocation(84036083);
 	console.log(data);
 	
 }
@@ -96,6 +98,28 @@ function heatToClass(heat)
 	}
 	return "mapStatusPositive2";
 }
+async function highlightCountyMap()
+{
+	const res = await fetch("/countyheat/");
+	const data = await res.json();
+	const current = data[0]
+	for(let idx=0;idx<current.length;idx++)
+	{
+		let curItem=current[idx];
+		let location=curItem.location;
+		if((location>=84000000) && (location < 84060000))
+		{
+			let locationString = location.toString();
+			let classId="c"+locationString.substring(3);
+			console.log(classId);
+			let mapObservable=	dc.countyClass[classId];
+			mapObservable(heatToClass(curItem.number));
+		
+			
+		}
+	}
+}
+
 async function highlightMap()
 {
 	const res = await fetch("/stateheat/");
@@ -125,6 +149,8 @@ async function startup(){
 	vm.updateAll();
 	setupMap(dc);
 	await highlightMap();
+	await highlightCountyMap();
+	$("g.state").children().on("click",function(evt){let code=$(evt.target).attr("code");dc.chooseStateByCode(parseInt(code));});
 }
 
 startup()
