@@ -129,11 +129,21 @@ app.all("/populousInState/:UID",(req,res) => {
 
 async function get_state_heat(req : express.Request, res:express.Response)
 {
+//	let data = await covidDB.get_state_event_pct_changes("confirmed_states_delta_ma_7_pct_change_7",7)
 	let data = await covidDB.get_state_event_pct_changes("confirmed_states_delta_ma_14_pct_change_14",14)
 	console.log(data);
 	res.json(data);
 }
 app.all("/stateheat/",(req,res) => {get_state_heat(req,res)});
+
+
+async function get_county_heat(req : express.Request, res:express.Response)
+{
+	let data = await covidDB.get_state_event_pct_changes("confirmed_delta_ma_14_pct_change_14",14)
+	console.log(data);
+	res.json(data);
+}
+app.all("/countyheat/",(req,res) => {get_county_heat(req,res)});
 
 
 const server = app.listen(8080,()=> { console.log("Listening on 8080");});
