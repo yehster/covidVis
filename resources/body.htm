@@ -12,7 +12,7 @@
 			
 	</tr>
 	<tr>
-		<td rowspan=1 style="vertical-align:top;width:5%;'"><div data-bind="template: {name:'NW'}"></div></td>
+		<td rowspan=1 style="vertical-align:top;width:5%;'"><div data-bind="template: {name:'USAMapCounties'}"></div></td>
 		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
 		<td width=30%>
 				<canvas id="trajectoryTime" width="600" height="400"></canvas>
@@ -66,13 +66,13 @@ async function getStateWithCounties(state)
 	const res=await fetch("/populousInState/"+state+"/5");
 	const data = await res.json(); 
 	await vm.addLocation(state);
+	
 	for(let idx=0;idx<data.length;idx++)
 	{
 		let county=data[idx];
 		console.log(county);
-		await vm.addLocation(county.UID);
+		 vm.addLocation(county.UID);
 	}
-	await vm.addLocation(84036083);
 	console.log(data);
 	
 }
@@ -119,6 +119,49 @@ async function highlightCountyMap()
 		}
 	}
 }
+function rateToClass(rate)
+{
+	if(rate<=1)
+	{
+		return "mapStatusNegative2";
+	}
+	if(rate<=3)
+	{
+		return "mapStatusNegative1";
+	}
+	if(rate<=10)
+	{
+		return "mapStatusNeutral";
+	}
+	if(rate<=25)
+	{
+		return "mapStatusPositive1";
+	}
+	return "mapStatusPositive2";
+}
+async function highlightCountyRates(day)
+{
+//	const res = await fetch("/countyrates/");
+	const res = await fetch("/countyrates/"+ day);
+
+	const data = await res.json();
+	console.log(data);
+	const current = data
+	for(let idx=0;idx<current.length;idx++)
+	{
+		let curItem=current[idx];
+		let location=curItem.location;
+		if((location>=84000000) && (location < 84060000))
+		{
+			let locationString = location.toString();
+			let classId="c"+locationString.substring(3);
+			let mapObservable=	dc.countyClass[classId];
+			mapObservable(rateToClass(curItem.number));
+		
+			
+		}
+	}
+}
 
 async function highlightMap()
 {
@@ -135,6 +178,37 @@ async function highlightMap()
 		mapObservable(heatToClass(curItem.number));
 	}
 }
+
+async function cycleRates(date)
+{
+	let curDate;
+	if(date===null)
+	{
+		curDate = new Date();
+		curDate.setMonth(3);
+		curDate.setDate(14);
+		
+	}
+	else
+	{
+		curDate = date;
+	}
+	let endDate = new Date();
+	endDate.setDate(4);
+	console.log(curDate);
+	let dateString = "2020-"+(curDate.getMonth() +1) + "-"+curDate.getDate();
+	await highlightCountyRates(dateString);
+	
+	if(curDate<endDate)
+	{
+		curDate = new Date(curDate.valueOf() + (24 * 3600000));
+		console.log(dateString);
+		setTimeout(()=>{cycleRates(curDate)},100);
+		//alert(curDate);
+	}
+	
+	
+}
 async function startup(){
 
 	 await dc.populate();
@@ -144,12 +218,11 @@ async function startup(){
 	vm.updateAll();
 	
 	ko.applyBindings(dc);
-	//dc.selectedState(dc.states[38]);
 	await myPA();
 	vm.updateAll();
-	setupMap(dc);
 	await highlightMap();
-	await highlightCountyMap();
+	cycleRates(null);	
+	//await highlightCountyMap();
 	$("g.state").children().on("click",function(evt){let code=$(evt.target).attr("code");dc.chooseStateByCode(parseInt(code));});
 }
 

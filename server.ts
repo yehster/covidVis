@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const resource_path : string  = "C:/Users/Kevin/eclipse-workspace/covidVis/";
+const resource_path : string  = "./";
 app.all("/html/:file",(req,res)=>
 {
 	res.set({'Content-Type': 'text/html'});
@@ -144,6 +144,23 @@ async function get_county_heat(req : express.Request, res:express.Response)
 	res.json(data);
 }
 app.all("/countyheat/",(req,res) => {get_county_heat(req,res)});
+
+async function get_counties_case_rates(req : express.Request, res: express.Response)
+{
+	let data = await covidDB.get_county_case_rates();
+	res.json(data);
+}
+async function get_counties_case_rates_day(req : express.Request, res: express.Response)
+{
+	let date = req.params.day;
+	let data = await covidDB.get_count_case_rates_day(date);
+	res.json(data);
+}
+
+//app.all("/countyrates/",get_counties_case_rates);
+
+app.all("/countyrates/:day",get_counties_case_rates_day);
+
 
 
 const server = app.listen(8080,()=> { console.log("Listening on 8080");});
