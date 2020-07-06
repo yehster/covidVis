@@ -65,13 +65,13 @@ async function getStateWithCounties(state)
 {
 	const res=await fetch("/populousInState/"+state+"/5");
 	const data = await res.json(); 
-	await vm.addLocation(state);
+	//await vm.addLocation(state);
 	
 	for(let idx=0;idx<data.length;idx++)
 	{
 		let county=data[idx];
 		console.log(county);
-		 vm.addLocation(county.UID);
+		await vm.addLocation(county.UID);
 	}
 	console.log(data);
 	

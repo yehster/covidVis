@@ -41,7 +41,7 @@ class dataChoices
 	}
 	chooseStateByCode(code : number)
 	{
-		for(idx=0;idx<this.states.length;idx++)
+		for(let idx=0;idx<this.states.length;idx++)
 		{
 			if (this.states[idx].UID===code)
 			{
