@@ -157,7 +157,7 @@ async function get_counties_case_rates_day(req : express.Request, res: express.R
 	res.json(data);
 }
 
-//app.all("/countyrates/",get_counties_case_rates);
+app.all("/countyrates/",get_counties_case_rates);
 
 app.all("/countyrates/:day",get_counties_case_rates_day);
 
