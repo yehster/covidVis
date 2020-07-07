@@ -10,24 +10,29 @@ body
 .mapStatusNeutral
 {
 	fill : yellow;
+	color : yellow;
 }
 
 .mapStatusPositive1
 {
 	fill: orange;
+	color: orange;
 }
 
 .mapStatusPositive2
 {
 	fill: red;
+	color : red;
 }
 
 .mapStatusNegative1
 {
 	fill: lightgreen;
+	color: lightgreen;
 }
 
 .mapStatusNegative2
 {
 	fill:green;
+	color: green;
 }

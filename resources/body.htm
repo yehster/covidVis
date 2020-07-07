@@ -4,6 +4,12 @@
 	<tr>
 		<td rowspan=1 style="vertical-align:top;width:5%;'">
 		<div data-bind="template: {name:'USMapKO'}"></div>
+			Growth Rates: 
+			<span class=mapStatusNegative2>>50%  decline</span>
+			<span class=mapStatusNegative1>5-50% decline</span>
+			<span class=mapStatusNeutral>5% decline - 5% increase</span>
+			<span class=mapStatusPositive1>5%-50% increase</span>
+			<span class=mapStatusPositive2>>50%  increase</span>
 		<div style="width:10em" data-bind="template: { name: 'selectedState'}"></div></td>
 		<td style="width:30%"><canvas id="cases" width="600" height="400"></canvas></td>
 		<td style="width:30%"><canvas id="byPopulation" width="600" height="400"></canvas></td>
@@ -12,7 +18,14 @@
 			
 	</tr>
 	<tr>
-		<td rowspan=1 style="vertical-align:top;width:5%;'"><div data-bind="template: {name:'USAMapCounties'}"></div></td>
+		<td rowspan=1 style="vertical-align:top;width:5%;'"><div data-bind="template: {name:'USAMapCounties'}"></div>
+			New Cases per 100,000 population 7-day moving average: 
+			<span class=mapStatusNegative2>1<=</span>
+			<span class=mapStatusNegative1><=3</span>
+			<span class=mapStatusNeutral><=10</span>
+			<span class=mapStatusPositive1><=25</span>
+			<span class=mapStatusPositive2>>25</span>
+		</td>
 		<td style="width:30%"><canvas id="trajectory" width="600" height="400"></canvas></td>
 		<td width=30%>
 				<canvas id="trajectoryTime" width="600" height="400"></canvas>
@@ -71,8 +84,9 @@ async function startup(){
 	vm.updateAll();
 	
 	ko.applyBindings(dc);
-	await myPA();
+//	await myPA();
 	vm.updateAll();
+	dc.selectedState(dc.states[37]);
 	await highlightMap();
 //	cycleRates(null);	
 	await highlightCountyRates();
