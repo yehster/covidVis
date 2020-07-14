@@ -72,6 +72,21 @@ async function myStates()
 	await vm.addLocation(53);
 }
 
+async function goodVsBad()
+{
+	await vm.addLocation(36);		
+	await vm.addLocation(42);	
+	await vm.addLocation(34);
+	await vm.addLocation(48);		
+	await vm.addLocation(12);	
+	await vm.addLocation(4);
+}
+async function myCounties()
+{
+	await vm.addLocation(84042091);
+	await vm.addLocation(84048453);
+}
+
 let dc = new dataChoices(vm);
 
 
@@ -86,11 +101,13 @@ async function startup(){
 	ko.applyBindings(dc);
 //	await myPA();
 	vm.updateAll();
-	dc.selectedState(dc.states[37]);
+	//dc.selectedState(dc.states[37]);
 	await highlightMap();
 //	cycleRates(null);	
 	await highlightCountyRates();
 	$("g.state").children().on("click",function(evt){let code=$(evt.target).attr("code");dc.chooseStateByCode(parseInt(code));});
+	await goodVsBad();
+	vm.updateAll();
 }
 
 startup()
